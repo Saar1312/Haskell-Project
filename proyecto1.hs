@@ -1,7 +1,7 @@
-data Term = Var Char | Or Term Term | And Term Term | Then Term Term | 
+data Term = Var String | Or Term Term | And Term Term | Then Term Term | 
 				Eq Term Term | Ne Term Term | Not Term-- | Termino Term 
 				| Verdadero String | Falso String
-				deriving Show
+				--deriving Show no hace falta porque la linea instance Show ... hace lo mismo
 
 (\/) :: Term -> Term ->  Term
 t1 \/ t2 = Or t1 t2
@@ -29,90 +29,105 @@ infixr 7 ==>
 infixl 6 <==> 
 infixl 6 !<==> 
 
+printNum :: Int -> String
+printNum x = "x"++(show x)
 
 ------------------------------------------------------------
+showTerm :: Term -> String
+--showTerm (Verdadero true) = 
+showTerm (Var x) = id x -- id en vez de show para no mostrar las comillas
+showTerm (Not t) = "neg " ++ (showTerm t)
+showTerm (Or t1 t2) = (showTerm t1) ++ " \\/ " ++ (showTerm t2)
+showTerm (And t1 t2) = (showTerm t1) ++ " /\\ " ++ (showTerm t2)
+showTerm (Then t1 t2) = (showTerm t1) ++ " ==> " ++ (showTerm t2)
+showTerm (Eq t1 t2) = (showTerm t1) ++ " <==> " ++ (showTerm t2)
+showTerm (Ne t1 t2) = (showTerm t1) ++ " !<==> " ++ (showTerm t2)
 
+instance Show Term where show = showTerm -- Hace que el tipo Term pertenezca a la clase de tipos Show
+										 -- y que su funcion show sea showTerm
+
+
+-- Ver si esto se puede hacer usando una funcion
 a :: Term
-a = Var 'a'
+a = Var "a"
 
 b :: Term
-b = Var 'b'
+b = Var "b"
 
 c :: Term
-c = Var 'c'
+c = Var "c"
 
 d :: Term
-d = Var 'd'
+d = Var "d"
 
 e :: Term
-e = Var 'e'
+e = Var "e"
 
 f :: Term
-f = Var 'f'
+f = Var "f"
 
 g :: Term
-g = Var 'g'
+g = Var "g"
 
 h :: Term
-h = Var 'h'
+h = Var "h"
 
 i :: Term
-i = Var 'i'
+i = Var "i"
 
 j :: Term
-j = Var 'j'
+j = Var "j"
 
 k :: Term
-k = Var 'k'
+k = Var "k"
 
 l :: Term
-l = Var 'l'
+l = Var "l"
 
 m :: Term
-m = Var 'm'
+m = Var "m"
 
 n :: Term
-n = Var 'n'
+n = Var "n"
 
 o :: Term
-o = Var 'o'
+o = Var "o"
 
 p :: Term
-p = Var 'p'
+p = Var "p"
 
 q :: Term
-q = Var 'q'
+q = Var "q"
 
 r :: Term
-r = Var 'r'
+r = Var "r"
 
 s :: Term
-s = Var 's'
+s = Var "s"
 
 t :: Term
-t = Var 't'
+t = Var "t"
 
 u :: Term
-u = Var 'u'
+u = Var "u"
 
 v :: Term
-v = Var 'v'
+v = Var "v"
 
 w :: Term
-w = Var 'w'
+w = Var "w"
 
 x :: Term
-x = Var 'x'
+x = Var "x"
 
 y :: Term
-y = Var 'y'
+y = Var "y"
 
 z :: Term
-z = Var 'z'
+z = Var "z"
 
 true :: Term
 true = Verdadero "true"
 
 false :: Term
 false = Falso "false"
-
