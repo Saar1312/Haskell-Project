@@ -1,19 +1,36 @@
 data Term = Var Char | Or Term Term | And Term Term | Then Term Term | 
-				Eq Term Term | Neq Term Term -- | Termino Term 
+				Eq Term Term | Ne Term Term | Not Term-- | Termino Term 
 				| Verdadero String | Falso String
 				deriving Show
-{-
-(\/) :: Term -> Term -- ->  String
 
-(/\) :: Term -> Term -- ->  String
+(\/) :: Term -> Term ->  Term
+t1 \/ t2 = Or t1 t2
 
-(==>) :: Term -> Term -- -> String
+(/\) :: Term -> Term ->  Term
+t1 /\ t2 = And t1 t2
 
-(<==>) :: Term -> Term -- -> String
+(==>) :: Term -> Term -> Term
+t1 ==> t2 = Then t1 t2
 
-(!<==>) :: Term -> Term -- -> String
---t1 !<==> t2 =
--}
+(<==>) :: Term -> Term -> Term
+t1 <==> t2 = Eq t1 t2
+
+(!<==>) :: Term -> Term -> Term
+t1 !<==> t2 = Ne t1 t2
+
+neg :: Term -> Term
+neg t = Not t
+
+---------------------- PRECENDENCIAS -----------------------
+-- prefix 9 neg --If no fixity declaration is given for a particular operator, it defaults to infixl 9 
+infixl 8 \/ 
+infixl 8 /\ 
+infixr 7 ==> 
+infixl 6 <==> 
+infixl 6 !<==> 
+
+
+------------------------------------------------------------
 
 a :: Term
 a = Var 'a'
@@ -95,7 +112,6 @@ z = Var 'z'
 
 true :: Term
 true = Verdadero "true"
-
 
 false :: Term
 false = Falso "false"
