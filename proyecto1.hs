@@ -1,6 +1,6 @@
 data Term = Var String | Or Term Term | And Term Term | Then Term Term | 
-				Eq Term Term | Ne Term Term | Not Term-- | Termino Term 
-				| Verdadero String | Falso String
+				Eq Term Term | Ne Term Term | Not Term |
+				Verdadero | Falso
 				--deriving Show no hace falta porque la linea instance Show ... hace lo mismo
 
 (\/) :: Term -> Term ->  Term
@@ -29,12 +29,19 @@ infixr 7 ==>
 infixl 6 <==> 
 infixl 6 !<==> 
 
-printNum :: Int -> String
-printNum x = "x"++(show x)
+-- Para debuggear
+printTerm :: Term -> IO ()
+printTerm (Var t) = putStrLn "Var"
+printTerm (Or t1 t2) = putStrLn "Or"
+printTerm (And t1 t2) = putStrLn "And"
+printTerm (Eq t1 t2) = putStrLn "Equivalencia"
+
 
 ------------------------------------------------------------
 showTerm :: Term -> String
 --showTerm (Verdadero true) = 
+showTerm Verdadero = "true"
+showTerm Falso = "false"
 showTerm (Var x) = id x -- id en vez de show para no mostrar las comillas
 showTerm (Not t) = "neg " ++ (showTerm t)
 showTerm (Or t1 t2) = (showTerm t1) ++ " \\/ " ++ (showTerm t2)
@@ -127,7 +134,8 @@ z :: Term
 z = Var "z"
 
 true :: Term
-true = Verdadero "true"
+true = Verdadero
 
 false :: Term
-false = Falso "false"
+false = Falso
+
