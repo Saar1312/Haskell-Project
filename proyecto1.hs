@@ -3,6 +3,11 @@ data Term = Var String | Or Term Term | And Term Term | Then Term Term |
 				Verdadero | Falso
 				--deriving Show no hace falta porque la linea instance Show ... hace lo mismo
 
+-- Como no se puede colocar explicitamente que el primer argumento de una sustitucion
+-- [a=:a/\b] tiene que ser una variable, hay que usar una funcion para no permitir cosas como
+-- [a/\b=:c]
+data Sust = Simple Term Term | Doble Term Term Term Term | Triple Term Term Term Term Term Term
+
 (\/) :: Term -> Term ->  Term
 t1 \/ t2 = Or t1 t2
 
@@ -36,7 +41,6 @@ printTerm (Or t1 t2) = putStrLn "Or"
 printTerm (And t1 t2) = putStrLn "And"
 printTerm (Eq t1 t2) = putStrLn "Equivalencia"
 
-
 ------------------------------------------------------------
 showTerm :: Term -> String
 --showTerm (Verdadero true) = 
@@ -55,7 +59,7 @@ instance Show Term where show = showTerm -- Hace que el tipo Term pertenezca a l
 
 
 -- Ver si esto se puede hacer usando una funcion
-a :: Term
+a :: Term 
 a = Var "a"
 
 b :: Term
@@ -138,4 +142,17 @@ true = Verdadero
 
 false :: Term
 false = Falso
+
+
+
+simpleSust :: Term -> Term -> Term -> Term
+simpleSust (Var x) (Var y) e = 
+	if x == y then e
+	else Var x 
+simpleSust (Not e1) (Var x) e = Not (simpleSust e1 (Var x) e)
+simpleSust (Or e1 e2) (Var x) e = Or (simpleSust e1 (Var x) e) (simpleSust e2 (Var x) e)
+simpleSust (And e1 e2) (Var x) e = And (simpleSust e1 (Var x) e) (simpleSust e2 (Var x) e)
+simpleSust (Eq e1 e2) (Var x) e = Eq (simpleSust e1 (Var x) e) (simpleSust e2 (Var x) e)
+simpleSust (Ne e1 e2) (Var x) e = Ne (simpleSust e1 (Var x) e) (simpleSust e2 (Var x) e)
+
 
