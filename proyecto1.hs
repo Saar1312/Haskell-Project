@@ -143,8 +143,8 @@ abstraer (And t1 t2) _ = error "solo se puede abstraer una variable"
 --Funcion sustitución
 sust :: Term -> Sust -> Term
 sust t (Ss (t1, v1)) = abstraer v1 t t1
-{-sust t (Sd (t1, s, v2)) = 
-sust t (St (t1, t2, s, v1, v2)) = -}
+sust t (Sd (t1, s, v2)) = 
+sust t (St (t1, t2, s, v1, v2)) = 
 
 --Función instanciación
 instantiate :: Equation -> Sust -> Equation
