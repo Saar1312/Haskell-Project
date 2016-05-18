@@ -30,11 +30,16 @@ k = \x -> \y -> x
 s = \x -> \y -> \z -> (x z) (y z)
 
 abstraer :: Term -> Term -> (Term -> Term)
-abstraer (Var x) (Var y) = if x == y then i else k (Var x)
-abstraer (Var x) (Or t1 t2) = s (s (k Or) (abstraer (Var x) t1)) (abstraer (Var x) t2) 
+abstraer (Var x) (Var y) = if x == y then i else k (Var y)
 
 
-{- ESTA PARTE NO IMPORTA TANTO AHORITA, PERO SIRBE PARA APRENDER A USAR EL >>=
+abstraer (Var x) (Or t1 t2) = s (s (k Or) (abstraer (Var x) t1)) (abstraer (Var x) t2)
+
+
+abstraer (Or t1 t2) _ = error "solo se puede abstraer una variable"
+
+
+{- ESTA PARTE NO IMPORTA TANTO AHORITA, PERO SIRVE PARA APRENDER A USAR EL >>=
 data Tree t = Nil | Node t (Tree t) (Tree t)
 
 -- Arbol de ejemplo
