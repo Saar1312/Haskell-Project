@@ -7,8 +7,10 @@ data Term = Var Char
  			| Eq Term Term 
  			| Ne Term Term 
   			| Not Term 
+            deriving(Eq)
 
-data Equation = Eq1 Term Term
+data Equation = Ecu Term Term
+                deriving(Eq)
 
 data Sust = Ss (Term, Term)
 			| Sd (Term, Sust, Term)
@@ -41,7 +43,7 @@ neg t = Not t
 (!<==>) t1 t2 = Ne t1 t2
 
 (===) :: Term -> Term -> Equation
-(===) t1 t2 = Eq1 t1 t2
+(===) t1 t2 = Ecu t1 t2
 
 (=:) :: Term -> Term -> Sust
 (=:) t v = Ss (t, v)
@@ -75,8 +77,6 @@ showTerm (Then t1 t2) = (showTerm t1) ++ " ==> " ++ (showTerm t2)
 showTerm (Eq t1 t2) = (showTerm t1) ++ " <==> " ++ (showTerm t2)
 showTerm (Ne t1 t2) = (showTerm t1) ++ " !<==> " ++ (showTerm t2)
 
-
-
 instance Show Term where show = showTerm -- Hace que el tipo Term pertenezca a la clase de tipos Show
 										 -- y que su funcion show sea showTerm
 
@@ -84,7 +84,13 @@ showSust :: Sust -> String
 showSust (Ss (t, v)) = "[ "++show v++":="++show t++" ]"
 showSust (Sd (t1,Ss (t, v),v1)) = "[ "++show v++", "++show v1++":="++show t1++", "++show t++" ]"
 showSust (St (t1,t2,Ss (t, v),v1,v2)) = "[ "++show v++", "++show v1++", "++show v2++":="++show t1++", "++show t2++", "++show t++" ]"
+
 instance Show Sust where show = showSust
+
+showEcu :: Equation -> String
+showEcu (Ecu t1 t2) = show t1 ++ " === " ++ show t2
+
+instance Show Equation where show = showEcu
 
 
 p :: Term
@@ -106,70 +112,44 @@ false :: Term
 false = Falso
 
 
-i' = \x -> x
-k' = \x -> \y -> x 
-s' = \x -> \y -> \z -> (x z) (y z)
-s'' = \x -> \y -> \z -> x (y z) 
-
---Función abstraer
-abstraer :: Term -> Term -> (Term -> Term)
-abstraer (Var x) (Var y) = if x == y then i' else k' (Var y)
--- \/
-abstraer (Var x) (Or t1 t2) = s' (s' (k' Or) (abstraer (Var x) t1)) (abstraer (Var x) t2)
--- /\
-abstraer (Var x) (And t1 t2) = s' (s' (k' And) (abstraer (Var x) t1)) (abstraer (Var x) t2)
--- true
-abstraer _ Verdadero = k' Verdadero
--- false
-abstraer _ Falso = k' Falso
--- Then
-abstraer (Var x) (Then t1 t2) = s' (s' (k' Then) (abstraer (Var x) t1)) (abstraer (Var x) t2)
--- Eq
-abstraer (Var x) (Eq t1 t2) = s' (s' (k' Eq) (abstraer (Var x) t1)) (abstraer (Var x) t2)
--- Ne
-abstraer (Var x) (Ne t1 t2) = s' (s' (k' Ne) (abstraer (Var x) t1)) (abstraer (Var x) t2)
--- not
-abstraer (Var x) (Not t1) = s'' (Not) (abstraer (Var x) t1)
--- errores
-abstraer (Or t1 t2) _ = error "solo se puede abstraer una variable"
-abstraer (And t1 t2) _ = error "solo se puede abstraer una variable"
-
---Funcion sustitución
+--Función sustitución
 sust :: Term -> Sust -> Term
-sust t (Ss (t1, v1)) = abstraer v1 t t1
-{-sust t (Sd (t1, s, v2)) = 
-sust t (St (t1, t2, s, v1, v2)) = -}
+--Ss
+sust (Var y) (Ss (t, Var v)) = if v == y then t else (Var y)
+--Sd
+sust (Var y) (Sd (t,Ss (t1, Var v),Var v1)) | v == y = t
+                                            | v1 == y = t1
+                                            | otherwise = (Var y)
+
+--St
+sust (Var y) (St (t,t1,Ss (t2, Var v),Var v1,Var v2)) | v == y = t
+                                                      | v1 == y = t1
+                                                      | v2 == y = t2
+                                                      | otherwise = (Var y)
+-- \/
+sust (Or t1 t2) s = Or (sust t1 s) (sust t2 s)
+-- /\
+sust (And t1 t2) s = And (sust t1 s) (sust t2 s)
+-- true
+sust Verdadero _ = Verdadero
+-- false
+sust Falso _ = Falso
+-- Then
+sust (Then t1 t2) s = Then (sust t1 s) (sust t2 s)
+-- Eq
+sust (Eq t1 t2) s = Eq (sust t1 s) (sust t2 s)
+-- Ne
+sust (Ne t1 t2) s = Ne (sust t1 s) (sust t2 s)
+-- not
+sust (Not t1) s = Not $ sust t1 s
+-- errores
+--abstraer (Or t1 t2) _ = error "solo se puede abstraer una variable"
+--abstraer (And t1 t2) _ = error "solo se puede abstraer una variable"
+
 
 --Función instanciación
 instantiate :: Equation -> Sust -> Equation
-instantiate (Eq1 t1 t2) s = Eq1 (sust t1 s) (sust t2 s)
+instantiate (Ecu t1 t2) s = Ecu (sust t1 s) (sust t2 s)
 
---leibniz :: Equation -> Term -> Term 
-
-
-			-- EXP[    var1,  var2 := exp1 , exp2   ]  
-doubleSust :: Term -> Term -> Term -> Term -> Term -> Term
-doubleSust (Var x) (Var y) (Var z) e1 e2 
-	| x == y = e1
-	| x == z = e2
-doubleSust (Not e1) (Var x) (Var y) e2 e3 = Not (doubleSust e1 (Var x) (Var y) e2 e3)
-doubleSust (Or e1 e2) (Var x) (Var y) e3 e4 = Or (doubleSust e1 (Var x) (Var y) e2 e3) (doubleSust e2 (Var x) (Var y) e2 e3)
-doubleSust (And e1 e2) (Var x) (Var y) e3 e4 = And (doubleSust e1 (Var x) (Var y) e2 e3) (doubleSust e2 (Var x) (Var y) e2 e3)
-doubleSust (Eq e1 e2) (Var x) (Var y) e3 e4 = Eq (doubleSust e1 (Var x) (Var y) e2 e3) (doubleSust e2 (Var x) (Var y) e2 e3)
-doubleSust (Ne e1 e2) (Var x) (Var y) e3 e4 = Ne (doubleSust e1 (Var x) (Var y) e2 e3) (doubleSust e2 (Var x) (Var y) e2 e3)
-
---Obtiene una tupla de tipo Sust de un termino de la forma (x1,x2,...:=e1,e2,...)
---Acordarse de que la sustitucion es al reves: "statement 3.1 with (p <==> q,p =: p,r)"
-
-
---sust permite hacer sustituciones de expresiones usando un elemento de tipo Sust
---sust :: Term -> Sust -> Term
-
---instantiate permite hacer sustituciones en cosas de tipo Equation (el teorema)
---				Teorema    [x:=y]  
---instantiate :: Equation -> Sust -> Equation
---instantiate (e1 === e2) s = (sust e1 s) === (sust e2 s)
-
---(e1:[]) =: (e2:')':[]) = Simple (e1,e2)
---('(':e1:',':e2:[]) =: (e3:',':e4:')':[]) = Multiple (e1,e2,e3,e4)
---('(':e1:',':e2:',':e3:[]) =: (e4:',':e5:',':e6:')':[]) = Multiple (e1,e2,e3,e4,e5,e6)
+leibniz :: Equation -> Term -> Term -> Equation
+leibniz (Ecu t1 t2) e z = Ecu (sust e (t1=:z)) (sust e (t2=:z))
