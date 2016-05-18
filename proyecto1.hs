@@ -25,7 +25,7 @@ neg t = Not t
 -- [a/\b=:c]
 -- Triple sobra porque el tipo es recursivo (metiendo una tupla Simple en el Sust de Doble sale Triple)
 
-data Equation = Ecuacion Term Term
+--data Equation = Ecuacion Term Term
 
 (\/) :: Term -> Term ->  Term
 (\/) t1 t2 = Or t1 t2
@@ -55,7 +55,6 @@ infixl 8 /\
 infixr 7 ==> 
 infixl 6 <==> 
 infixl 6 !<==> 
-infixl 1 =:
 infixl 0 ===
 
 -- Para debuggear
@@ -83,7 +82,7 @@ instance Show Term where show = showTerm -- Hace que el tipo Term pertenezca a l
 										 -- y que su funcion show sea showTerm
 
 showSust :: Sust -> String
-showSust (Ss (t, v)) = "[ "++show v++":="++show t++" ]"
+showSust (Ss (t, v)) = show v++":="++show t
 showSust (Sd (t1,Ss (t, v),v1)) = "[ "++show v++", "++show v1++":="++show t1++", "++show t++" ]"
 showSust (St (t1,t2,Ss (t, v),v1,v2)) = "[ "++show v++", "++show v1++", "++show v2++":="++show t1++", "++show t2++", "++show t++" ]"
 instance Show Sust where show = showSust
@@ -106,38 +105,6 @@ true = Verdadero
 
 false :: Term
 false = Falso
-
---Obtiene una tupla de tipo Sust de un termino de la forma (x1,x2,...:=e1,e2,...)
---Acordarse de que la sustitucion es al reves: "statement 3.1 with (p <==> q,p =: p,r)"
-
-(=:) :: Term -> Term -> Sust
-t =: e = Simple t e
-
-
---sust permite hacer sustituciones de expresiones usando un elemento de tipo Sust
-sust :: Term -> Sust -> Term
-sust Verdadero s = Verdadero
-sust Falso s = Falso
-sust (Var x) (Simple (Var y) t) = 
-	if x == y then t
-	else Var x
-sust (Var x) (Doble ((Var y),Simple (Var z) t1,t2))
-	| x == y = t1
-	| x == z = t2
-	| otherwise = Var x
-sust (Var x) (Triple ((Var y),(Var z),Simple (Var w) t1,t2,t3))
-	| x == y = t1
-	| x == z = t2
-	| x == w = t3
-	| otherwise = Var x
-sust (Not t) (Doble s) = Not (sust t (Doble s))
-sust (Or t1 t2) s = Or (sust t1 s) (sust t2 s)
-sust (And t1 t2) s = And (sust t1 s) (sust t2 s)
-sust (Eq t1 t2) s = Eq (sust t1 s) (sust t2 s)
-sust (Ne t1 t2) s = Ne (sust t1 s) (sust t2 s)
-sust (Then t1 t2) s = Then (sust t1 s) (sust t2 s)
---sust e x t = 
-
 
 --instantiate permite hacer sustituciones en cosas de tipo Equation (el teorema)
 --				Teorema    [x:=y]  
