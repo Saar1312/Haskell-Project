@@ -16,7 +16,7 @@ data Sust = Ss (Term, Term)
 			| Sd (Term, Sust, Term)
 			| St (Term, Term, Sust, Term, Term) 
 
---Operadores	
+--Operadores
 
 neg :: Term -> Term
 neg t = Not t
@@ -71,11 +71,11 @@ showTerm Verdadero = "true"
 showTerm Falso = "false"
 showTerm (Var x) = [x]-- id en vez de show para no mostrar las comillas
 showTerm (Not t) = "neg " ++ (showTerm t)
-showTerm (Or t1 t2) = (showTerm t1) ++ " \\/ " ++ (showTerm t2)
-showTerm (And t1 t2) = (showTerm t1) ++ " /\\ " ++ (showTerm t2)
-showTerm (Then t1 t2) = (showTerm t1) ++ " ==> " ++ (showTerm t2)
-showTerm (Eq t1 t2) = (showTerm t1) ++ " <==> " ++ (showTerm t2)
-showTerm (Ne t1 t2) = (showTerm t1) ++ " !<==> " ++ (showTerm t2)
+showTerm (Or t1 t2) = "("++(showTerm t1) ++ " \\/ " ++ (showTerm t2)++")"
+showTerm (And t1 t2) = "("++(showTerm t1) ++ " /\\ " ++ (showTerm t2)++")"
+showTerm (Then t1 t2) = "("++(showTerm t1) ++ " ==> " ++ (showTerm t2)++")"
+showTerm (Eq t1 t2) = "("++(showTerm t1) ++ " <==> " ++ (showTerm t2)++")"
+showTerm (Ne t1 t2) = "("++(showTerm t1) ++ " !<==> " ++ (showTerm t2)++")"
 
 
 
@@ -163,3 +163,29 @@ toSd (t1, Ss(t2), t3) = Sd (t1,Ss(t2),t3)
 
 toSt :: (Term, Term, Sust,Term, Term) -> Sust
 toSt (t1, t2, Ss(t3), t4, t5) = St (t1,t2,Ss(t3),t4,t5)
+
+prop :: Float -> Equation
+prop num 
+	| num == 3.2 = (p <==> p) <==> (q <==> q) === true
+	| otherwise = error "No theoreme"
+
+infer :: Term -> Float -> Sust -> Term -> Term -> Equation
+infer anterior num s z t = leibniz (instantiate (prop num) s) t z
+
+step :: Term -> Float -> Sust -> Term -> Term -> Term
+step anterior num s z t
+	| (izq term) == anterior = (der term)
+	| (der term) == anterior = (izq term)
+	| otherwise = error "No es posible aplicar el teorema"
+	where 
+		term = (infer anterior num s z t)
+
+izq :: Equation -> Term
+izq (Ecu t1 t2) = t1
+
+der :: Equation -> Term
+der (Ecu t1 t2) = t2
+{-
+f1 (t1,Ss(t2,t3),t4) = Sd(t1,Ss(t2,t3),t4)
+f2 (t1,t2,Ss(t3,t4),t5,t6) = St(t1,t2,Ss(t3,t4),t5,t6)
+-}
