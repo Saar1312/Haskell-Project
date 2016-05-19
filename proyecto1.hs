@@ -20,12 +20,6 @@ data Sust = Ss (Term, Term)
 
 neg :: Term -> Term
 neg t = Not t
-				--deriving Show no hace falta porque la linea instance Show ... hace lo mismo
-
--- Como no se puede colocar explicitamente que el primer argumento de una sustitucion
--- [a=:a/\b] tiene que ser una variable, hay que usar una funcion para no permitir cosas como
--- [a/\b=:c]
--- Triple sobra porque el tipo es recursivo (metiendo una tupla Simple en el Sust de Doble sale Triple)
 
 (\/) :: Term -> Term ->  Term
 (\/) t1 t2 = Or t1 t2
@@ -77,10 +71,9 @@ showTerm (Then t1 t2) = "("++(showTerm t1) ++ " ==> " ++ (showTerm t2)++")"
 showTerm (Eq t1 t2) = "("++(showTerm t1) ++ " <==> " ++ (showTerm t2)++")"
 showTerm (Ne t1 t2) = "("++(showTerm t1) ++ " !<==> " ++ (showTerm t2)++")"
 
+instance Show Term where show = showTerm 
 
-
-instance Show Term where show = showTerm -- Hace que el tipo Term pertenezca a la clase de tipos Show
-										 -- y que su funcion show sea showTerm
+--------------------------------------------------------------
 
 showSust :: Sust -> String
 showSust (Ss (t, v)) = "[ "++show v++":="++show t++" ]"
@@ -89,10 +82,14 @@ showSust (St (t1,t2,Ss (t, v),v1,v2)) = "[ "++show v++", "++show v1++", "++show 
 
 instance Show Sust where show = showSust
 
+-------------------------------------------------------------
+
 showEcu :: Equation -> String
 showEcu (Ecu t1 t2) = show t1 ++ " === " ++ show t2
 
 instance Show Equation where show = showEcu
+
+-------------------------------------------------------------
 
 
 p :: Term
@@ -145,10 +142,8 @@ sust (Eq t1 t2) s = Eq (sust t1 s) (sust t2 s)
 sust (Ne t1 t2) s = Ne (sust t1 s) (sust t2 s)
 -- not
 sust (Not t1) s = Not $ sust t1 s
+--Error
 sust _ _ = error "No es posible sustituir una expresion"
--- errores
---abstraer (Or t1 t2) _ = error "solo se puede abstraer una variable"
---abstraer (And t1 t2) _ = error "solo se puede abstraer una variable"
 
 --Función instanciación
 instantiate :: Equation -> Sust -> Equation
@@ -157,38 +152,20 @@ instantiate (Ecu t1 t2) s = Ecu (sust t1 s) (sust t2 s)
 leibniz :: Equation -> Term -> Term -> Equation
 leibniz (Ecu t1 t2) e z = Ecu (sust e (t1=:z)) (sust e (t2=:z))
 
-
-toSd :: (Term, Sust, Term) -> Sust
-toSd (t1, Ss(t2), t3) = Sd (t1,Ss(t2),t3)
-
-toSt :: (Term, Term, Sust,Term, Term) -> Sust
-toSt (t1, t2, Ss(t3), t4, t5) = St (t1,t2,Ss(t3),t4,t5)
-
 prop :: Float -> Equation
 prop num 
 	| num == 3.2 = (p <==> p) <==> (q <==> q) === true
 	| otherwise = error "No theoreme"
 
-infer :: Term -> Float -> Sust -> Term -> Term -> Equation
-infer anterior num s z t = leibniz (instantiate (prop num) s) t z
+infer :: Float -> Sust -> Term -> Term -> Equation
+infer num s z e = leibniz (instantiate (prop num) s) e z
 
 step :: Term -> Float -> Sust -> Term -> Term -> Term
-step anterior num s z t
-	| (izq term) == anterior = (der term)
-	| (der term) == anterior = (izq term)
+step term1 num s z e 
+    |  izq == term1 = der
+	|  der == term1 = izq
 	| otherwise = error "No es posible aplicar el teorema"
 	where 
-		term = (infer anterior num s z t)
-
-izq :: Equation -> Term
-izq (Ecu t1 t2) = t1
-
-der :: Equation -> Term
-der (Ecu t1 t2) = t2
+		(Ecu der izq) = (infer num s z e)
 
 -- Ejemplo: step ((((p\/q)<==>(p\/q))<==>(r<==>r))/\neg r) 3.2 (Sd(p\/q,r=:p,q)) s (s/\neg r)
-
-{-
-f1 (t1,Ss(t2,t3),t4) = Sd(t1,Ss(t2,t3),t4)
-f2 (t1,t2,Ss(t3,t4),t5,t6) = St(t1,t2,Ss(t3,t4),t5,t6)
--}
