@@ -185,6 +185,9 @@ izq (Ecu t1 t2) = t1
 
 der :: Equation -> Term
 der (Ecu t1 t2) = t2
+
+-- Ejemplo: step ((((p\/q)<==>(p\/q))<==>(r<==>r))/\neg r) 3.2 (Sd(p\/q,r=:p,q)) s (s/\neg r)
+
 {-
 f1 (t1,Ss(t2,t3),t4) = Sd(t1,Ss(t2,t3),t4)
 f2 (t1,t2,Ss(t3,t4),t5,t6) = St(t1,t2,Ss(t3,t4),t5,t6)
