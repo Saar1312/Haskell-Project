@@ -17,7 +17,7 @@ data Equation = Ecu Term Term
 data Sust = Ss (Term, Term)
 			| Sd (Term, Sust, Term)
 			| St (Term, Term, Sust, Term, Term) 
-			
+
 --Operadores
 
 neg :: Term -> Term
@@ -92,7 +92,14 @@ showEcu (Ecu t1 t2) = show t1 ++ " === " ++ show t2
 instance Show Equation where show = showEcu
 
 -------------------------------------------------------------
+lambda :: String
+lambda = "lambda"
 
+with :: String
+with = "with"
+
+using :: String
+using = "using"
 
 p :: Term
 p = Var 'p'
