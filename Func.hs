@@ -68,3 +68,6 @@ instance Inferencia (Term,Sust,Term) where
 
 instance Inferencia (Term,Term,Sust,Term,Term) where
 	toSust (t2,t3,s,t4,t5) = St (t2,t3,s,t4,t5)
+
+--statement :: Float -> t -> s -> t1 -> t2 -> Term -> Term -> Term -> (Term -> IO Term)
+statement num _ s _ _ z e = \term1 -> step term1 num (toSust s) z e
