@@ -54,3 +54,16 @@ step term1 num s z e
   | otherwise = error "No es posible aplicar el teorema"
   where 
     (Ecu der izq) = (infer num s z e)
+
+
+--statement :: Float -> t -> s -> t -> t -> Term -> Term -> Term -> (Term -> IO Term)
+--statement num _ s _ _ z e = \term1 -> step term1 num (toS s) z e
+
+--ToSust
+toS :: a -> Sust
+toS (t, s, v ) = Sd (t, s, v)
+toS (t, t1, s, v, v1) = St (t, t1, s, v, v1)
+--Funciones Dummys
+
+    -- Ejemplos: step ((((p\/q)<==>(p\/q))<==>(r<==>r))/\neg r) 3.2 (Sd(p\/q,r=:p,q)) s (s/\neg r)
+          --step ((p <==> (p <==> q)) <==> q) 3.1 (Sd(p,q=:q,r)) s (s<==>q)
