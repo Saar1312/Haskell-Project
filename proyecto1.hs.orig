@@ -55,6 +55,7 @@ infixl 8 /\
 infixr 7 ==> 
 infixl 6 <==> 
 infixl 6 !<==> 
+infixl 1 =:
 infixl 0 ===
 
 -- Para debuggear
