@@ -1,5 +1,5 @@
 module Func
-    where
+	where
 
 import Term
 import Theorems
@@ -12,14 +12,14 @@ sust :: Term -> Sust -> Term
 sust (Var y) (Ss (t, Var v)) = if v == y then t else (Var y)
 --Sd
 sust (Var y) (Sd (t,Ss (t1, Var v),Var v1)) | v == y = t
-                                            | v1 == y = t1
-                                            | otherwise = (Var y)
+											| v1 == y = t1
+											| otherwise = (Var y)
 
 --St
 sust (Var y) (St (t,t1,Ss (t2, Var v),Var v1,Var v2)) | v == y = t
-                                                      | v1 == y = t1
-                                                      | v2 == y = t2
-                                                      | otherwise = (Var y)
+													  | v1 == y = t1
+													  | v2 == y = t2
+													  | otherwise = (Var y)
 -- \/
 sust (Or t1 t2) s = Or (sust t1 s) (sust t2 s)
 -- /\
@@ -51,44 +51,20 @@ infer num s z e = leibniz (instantiate (prop num) s) e z
 
 step :: Term -> Float -> Sust -> Term -> Term -> Term
 step term1 num s z e 
-    | izq == term1 = der
-  | der == term1 = izq
-  | otherwise = error "No es posible aplicar el teorema"
+	| izq == term1 = der
+	| der == term1 = izq
+	| otherwise = error "No es posible aplicar el teorema"
   where 
-    (Ecu der izq) = (infer num s z e)
-{-
+	(Ecu der izq) = (infer num s z e)
+
 class Inferencia i where
-    statement :: Term -> Float -> i -> Term -> Term -> Term
+	toSust :: i -> Sust
 
 instance Inferencia Sust where
-    statement t1 n (Ss (t,v)) t2 t3 = step t1 n (Ss (t,v)) t2 t3
+	toSust x = x
 
 instance Inferencia (Term,Sust,Term) where
-    statement t1 n (t2,s,t3) t4 t5 = step t1 n (Sd (t2,s,t3)) t4 t5
+	toSust (t2,s,t3) = Sd (t2,s,t3)
 
 instance Inferencia (Term,Term,Sust,Term,Term) where
-    statement t1 n (t2,t3,s,t4,t5) t6 t7 = step t1 n (St (t2,t3,s,t4,t5)) t6 t7
--}
-class Inferencia i where
-    toSust :: i -> Sust
-
-instance Inferencia Sust where
-    toSust x = x
-
-instance Inferencia (Term,Sust,Term) where
-    toSust (t2,s,t3) = Sd (t2,s,t3)
-
-instance Inferencia (Term,Term,Sust,Term,Term) where
-    toSust (t2,t3,s,t4,t5) = St (t2,t3,s,t4,t5)
-
---statement :: Float -> t -> s -> t -> t -> Term -> Term -> Term -> (Term -> IO Term)
---statement num _ s _ _ z e = \term1 -> step term1 num (toS s) z e
-{-
---ToSust
-toS :: a -> Sust
-toS (t, s, v ) = Sd (t, s, v)
-toS (t, t1, s, v, v1) = St (t, t1, s, v, v1)-}
---Funciones Dummys
-
-    -- Ejemplos: step ((((p\/q)<==>(p\/q))<==>(r<==>r))/\neg r) 3.2 (Sd(p\/q,r=:p,q)) s (s/\neg r)
-          --step ((p <==> (p <==> q)) <==> q) 3.1 (Sd(p,q=:q,r)) s (s<==>q)
+	toSust (t2,t3,s,t4,t5) = St (t2,t3,s,t4,t5)
