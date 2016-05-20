@@ -113,6 +113,9 @@ r = Var 'r'
 s :: Term
 s = Var 's'
 
+z :: Term
+z = Var 'z'
+
 true :: Term
 true = Verdadero
 
