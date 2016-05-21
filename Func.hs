@@ -1,24 +1,27 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Func
 	where
 
 import Term
 import Theorems
 
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+--Clase Sustitución
+-----------------------------------------------------------------------------
+class Sustitucion i where
+	toSust :: i -> Sust
 
-{-
-Falta:
-* Revisar como hacer para correrlo sin usar el flag -XFlexibleInstances usando la linea
-{.-# LANGUAGE FlexibleInstances #-.} (que no esta funcionando)
-* Funciones proof y done
-* Hacer que step retorne IO()
-* Comentar bien
-* Probar
-* Hacer que showTerm no parentice las expresiones mas externas: ejemplo ((p<==>q)\/s)
--}
+instance Sustitucion Sust where
+	toSust x = x
 
+instance Sustitucion (Term,Sust,Term) where
+	toSust (t2,s,t3) = Sd (t2,s,t3)
+
+instance Sustitucion (Term,Term,Sust,Term,Term) where
+	toSust (t2,t3,s,t4,t5) = St (t2,t3,s,t4,t5)
+-----------------------------------------------------------------------------
 
 --Función sustitución
+-----------------------------------------------------------------------------
 sust :: Term -> Sust -> Term
 --Ss
 sust (Var y) (Ss (t, Var v)) = if v == y then t else (Var y)
@@ -50,17 +53,21 @@ sust (Ne t1 t2) s = Ne (sust t1 s) (sust t2 s)
 sust (Not t1) s = Not $ sust t1 s
 --Error
 sust _ _ = error "No es posible sustituir una expresion"
+-----------------------------------------------------------------------------
 
---Función instanciación
+--Instanciación
 instantiate :: Equation -> Sust -> Equation
 instantiate (Ecu t1 t2) s = Ecu (sust t1 s) (sust t2 s)
 
+--Leibniz
 leibniz :: Equation -> Term -> Term -> Equation
 leibniz (Ecu t1 t2) e z = Ecu (sust e (t1=:z)) (sust e (t2=:z))
 
+--Inferencia
 infer :: Float -> Sust -> Term -> Term -> Equation
 infer num s z e = leibniz (instantiate (prop num) s) e z
 
+--Step
 step :: Term -> Float -> Sust -> Term -> Term -> Term
 step term1 num s z e 
 	| izq == term1 = der
@@ -69,30 +76,21 @@ step term1 num s z e
   where 
 	(Ecu der izq) = (infer num s z e)
 
+-- Proof
 proof :: Equation -> IO Term
 proof (Ecu t1 t2) = 
 	do 
 		putStrLn $ showTerm t1
 		return t1
 
+--Done
 done :: Equation -> (Term -> IO ())
 done (Ecu t1 t2) = \term -> 
 	if (t2 == term) then putStrLn "Prueba exitosa"
 	else putStrLn "No se ha podido demostrar el teorema"
 
-class Inferencia i where
-	toSust :: i -> Sust
-
-instance Inferencia Sust where
-	toSust x = x
-
-instance Inferencia (Term,Sust,Term) where
-	toSust (t2,s,t3) = Sd (t2,s,t3)
-
-instance Inferencia (Term,Term,Sust,Term,Term) where
-	toSust (t2,t3,s,t4,t5) = St (t2,t3,s,t4,t5)
-
-statement :: Inferencia s => Float -> t -> s -> t1 -> t2 -> Term -> Term -> (Term -> IO Term)
+--Statement
+statement :: Sustitucion s => Float -> t -> s -> t1 -> t2 -> Term -> Term -> (Term -> IO Term)
 statement num _ s _ _ z e = \term1 -> 
 	do
 		let teorema = step term1 num (toSust s) z e
