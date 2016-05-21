@@ -78,9 +78,9 @@ instance Show Term where show = showTerm
 --------------------------------------------------------------
 
 showSust :: Sust -> String
-showSust (Ss (t, v)) = "[ "++show v++":="++show t++" ]"
-showSust (Sd (t1,Ss (t, v),v1)) = "[ "++show v++", "++show v1++":="++show t1++", "++show t++" ]"
-showSust (St (t1,t2,Ss (t, v),v1,v2)) = "[ "++show v++", "++show v1++", "++show v2++":="++show t1++", "++show t2++", "++show t++" ]"
+showSust (Ss (t, v)) = show v++" := "++show t
+showSust (Sd (t1,Ss (t, v),v1)) = "("++show v++", "++show v1++" := "++show t1++", "++show t++")"
+showSust (St (t1,t2,Ss (t, v),v1,v2)) = "("++show v++", "++show v1++", "++show v2++" := "++show t1++", "++show t2++", "++show t++")"
 
 instance Show Sust where show = showSust
 

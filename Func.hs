@@ -4,7 +4,7 @@ module Func
 import Term
 import Theorems
 
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
 
 {-
 Falta:
@@ -96,5 +96,6 @@ statement :: Inferencia s => Float -> t -> s -> t1 -> t2 -> Term -> Term -> (Ter
 statement num _ s _ _ z e = \term1 -> 
 	do
 		let teorema = step term1 num (toSust s) z e
-		putStrLn $ showTerm $ teorema
+		putStrLn $ "=== <statement "++show num ++ " with "++ showSust(toSust s)++" using lambda " ++ show z++"."++ showTerm e++">"
+		putStrLn $ (showTerm teorema)
 		return teorema

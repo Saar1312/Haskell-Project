@@ -6,7 +6,7 @@ prop :: Float -> Equation
 prop num
   | num == 3.1  = (p <==> q) <==> r === p <==> (q <==> r)     -- axiom
   | num == 3.2  = (p <==> q) === (q <==> p)                   -- axiom
-  | num == 3.3  = true === (p <==> p) <==> (q <==> q)             -- axiom
+  | num == 3.3  = true === p <==> p                           -- axiom
   | num == 3.4  = p === p <==> true                           -- axiom
   | num == 3.5  = (p <==> q) <==> q === p                     -- theorem
   | num == 3.6  = p === (q <==> q) <==> p                     -- theorem
