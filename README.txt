@@ -94,3 +94,5 @@ Para correr un caso de prueba importar en el archivo con el teorema a probar:
 import Func
 import Theorems
 import Term
+
+Compilar este archivo y correr la funcion verify.
