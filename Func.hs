@@ -6,6 +6,18 @@ import Theorems
 
 {-# LANGUAGE FlexibleInstances #-}
 
+{-
+Falta:
+* Revisar como hacer para correrlo sin usar el flag -XFlexibleInstances usando la linea
+{.-# LANGUAGE FlexibleInstances #-.} (que no esta funcionando)
+* Funciones proof y done
+* Hacer que step retorne IO()
+* Comentar bien
+* Probar
+* Hacer que showTerm no parentice las expresiones mas externas: ejemplo ((p<==>q)\/s)
+-}
+
+
 --Función sustitución
 sust :: Term -> Sust -> Term
 --Ss
@@ -57,6 +69,17 @@ step term1 num s z e
   where 
 	(Ecu der izq) = (infer num s z e)
 
+proof :: Equation -> IO Term
+proof (Ecu t1 t2) = 
+	do 
+		putStrLn $ showTerm t1
+		return t1
+
+done :: Equation -> (Term -> IO ())
+done (Ecu t1 t2) = \term -> 
+	if (t2 == term) then putStrLn "Prueba exitosa"
+	else putStrLn "No se ha podido demostrar el teorema"
+
 class Inferencia i where
 	toSust :: i -> Sust
 
@@ -69,5 +92,9 @@ instance Inferencia (Term,Sust,Term) where
 instance Inferencia (Term,Term,Sust,Term,Term) where
 	toSust (t2,t3,s,t4,t5) = St (t2,t3,s,t4,t5)
 
---statement :: Float -> t -> s -> t1 -> t2 -> Term -> Term -> Term -> (Term -> IO Term)
-statement num _ s _ _ z e = \term1 -> step term1 num (toSust s) z e
+statement :: Inferencia s => Float -> t -> s -> t1 -> t2 -> Term -> Term -> (Term -> IO Term)
+statement num _ s _ _ z e = \term1 -> 
+	do
+		let teorema = step term1 num (toSust s) z e
+		putStrLn $ showTerm $ teorema
+		return teorema
