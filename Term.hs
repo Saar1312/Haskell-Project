@@ -1,5 +1,6 @@
 module Term
     where
+
 data Term = Var Char
  			| Verdadero 
  			| Falso 
@@ -50,16 +51,7 @@ infixl 8 /\
 infixr 7 ==> 
 infixl 6 <==> 
 infixl 6 !<==> 
-infixl 1 =:
 infixl 0 ===
-
--- Para debuggear
-{-printTerm :: Term -> IO ()
-printTerm (Var c) = putStrLn "Var"
-printTerm (Or t1 t2) = putStrLn "Or"
-printTerm (And t1 t2) = putStrLn "And"
-printTerm (Eq t1 t2) = putStrLn "Equivalencia"
--}
 ------------------------------------------------------------
 --ShowTerm
 showTerm :: Term -> String
