@@ -1,5 +1,7 @@
 module Term
     where
+
+
 data Term = Var Char
  			| Verdadero 
  			| Falso 
@@ -19,7 +21,7 @@ data Sust = Ss (Term, Term)
 			| St (Term, Term, Sust, Term, Term) 
 
 --Operadores
-
+------------------------------------------------------------
 neg :: Term -> Term
 neg t = Not t
 
@@ -43,8 +45,10 @@ neg t = Not t
 
 (=:) :: Term -> Term -> Sust
 (=:) t v = Ss (t, v)
+------------------------------------------------------------
 
----------------------- PRECENDENCIAS -----------------------
+---------------------- Precedencias -----------------------
+
 infixl 8 \/ 
 infixl 8 /\ 
 infixr 7 ==> 
@@ -53,19 +57,13 @@ infixl 6 !<==>
 infixl 1 =:
 infixl 0 ===
 
--- Para debuggear
-{-printTerm :: Term -> IO ()
-printTerm (Var c) = putStrLn "Var"
-printTerm (Or t1 t2) = putStrLn "Or"
-printTerm (And t1 t2) = putStrLn "And"
-printTerm (Eq t1 t2) = putStrLn "Equivalencia"
--}
 ------------------------------------------------------------
+
 --ShowTerm
 showTerm :: Term -> String
 showTerm Verdadero = "true"
 showTerm Falso = "false"
-showTerm (Var x) = [x]-- id en vez de show para no mostrar las comillas
+showTerm (Var x) = [x]
 showTerm (Not t) = "("++"neg " ++ (showTerm t)++")"
 showTerm (Or t1 t2) = "("++(showTerm t1) ++ " \\/ " ++ (showTerm t2)++")"
 showTerm (And t1 t2) = "("++(showTerm t1) ++ " /\\ " ++ (showTerm t2)++")"
@@ -76,6 +74,7 @@ showTerm (Ne t1 t2) = "("++(showTerm t1) ++ " !<==> " ++ (showTerm t2)++")"
 instance Show Term where show = showTerm 
 
 --------------------------------------------------------------
+
 --ShowSust
 showSust :: Sust -> String
 showSust (Ss (t, v)) = show v++" := "++show t
@@ -85,6 +84,7 @@ showSust (St (t1,t2,Ss (t, v),v1,v2)) = "("++show v++", "++show v1++", "++show v
 instance Show Sust where show = showSust
 
 -------------------------------------------------------------
+
 --ShowEcu
 showEcu :: Equation -> String
 showEcu (Ecu t1 t2) = show t1 ++ " === " ++ show t2
@@ -92,6 +92,7 @@ showEcu (Ecu t1 t2) = show t1 ++ " === " ++ show t2
 instance Show Equation where show = showEcu
 
 -------------------------------------------------------------
+
 --Funciones dummy
 lambda :: String
 lambda = "lambda"
@@ -101,7 +102,9 @@ with = "with"
 
 using :: String
 using = "using"
+
 -------------------------------------------------------------
+
 --Funciones a-z, true y false
 a :: Term
 a = Var 'a'
