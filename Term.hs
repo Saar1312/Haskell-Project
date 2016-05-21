@@ -1,10 +1,7 @@
 module Term
     where
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 49706e95acba01c12a10f25ccb6570fc0980ca45
 data Term = Var Char
  			| Verdadero 
  			| Falso 
@@ -57,11 +54,9 @@ infixl 8 /\
 infixr 7 ==> 
 infixl 6 <==> 
 infixl 6 !<==> 
+infixl 1 =:
 infixl 0 ===
-<<<<<<< HEAD
-=======
 
->>>>>>> 49706e95acba01c12a10f25ccb6570fc0980ca45
 ------------------------------------------------------------
 
 --ShowTerm
